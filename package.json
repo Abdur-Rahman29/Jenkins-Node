@@ -1,5 +1,11 @@
 {
+  "name": "hello-world",
+  "version": "1.0.0",
+  "main": "hello.js",
+  "scripts": {
+    "start": "node hello.js"
+  },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.17.1"
   }
 }
