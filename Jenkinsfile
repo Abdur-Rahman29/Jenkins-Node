@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Build the Docker image with a tag
+                    // Build the Docker image with a tag 'latest'
                     docker.build('my-app:latest')
                 }
             }
@@ -25,16 +25,23 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Define the tag for the image
-                   
+                    // Define the target image tag for the Docker registry
+                    def targetImage = 'abdurmohammed928/my-app:latest'
                     
-                    // Tag the image with the registry repository and tag
-                    docker.image('my-app:latest').tag(imageTag)
+                    // Tag the built image with the full repository path and tag
+                    docker.image('my-app:latest').tag(targetImage)
                     
                     // Push the tagged image to the Docker registry
-                    docker.image(imageTag).push()
+                    docker.image(targetImage).push()
                 }
             }
+        }
+    }
+    
+    // Cleanup workspace after the pipeline run
+    post {
+        always {
+            deleteDir()
         }
     }
 }
