@@ -5,7 +5,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.build('my-app')
+                    // Build the Docker image with a tag
+                    docker.build('my-app:latest')
                 }
             }
         }
@@ -13,7 +14,8 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image('my-app').inside {
+                    // Run tests inside the Docker container
+                    docker.image('my-app:latest').inside {
                         sh 'npm test'  // or any other test command
                     }
                 }
@@ -23,7 +25,14 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    docker.image('my-app').push('abdurmohammed928/my-app')
+                    // Define the tag for the image
+                    def imageTag = 'abdurmohammed928/my-app:latest'
+                    
+                    // Tag the image with the registry repository and tag
+                    docker.image('my-app:latest').tag(imageTag)
+                    
+                    // Push the tagged image to the Docker registry
+                    docker.image(imageTag).push()
                 }
             }
         }
