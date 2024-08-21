@@ -1,52 +1,34 @@
 pipeline {
     agent any
-
-    environment {
-        dockerImage = 'my-app'
-        dockerTag = 'latest'
-        targetImage = 'abdurmohammed928/my-app:latest'
-    }
-
+ 
     stages {
         stage('Build') {
             steps {
                 script {
-                    echo 'Building Docker image...'
                     // Build the Docker image with the tag 'latest'
-                    docker.build("${dockerImage}:${dockerTag}")
+                    docker.build('my-app:latest')
                 }
             }
         }
-
+ 
         stage('Test') {
             steps {
                 script {
-                    echo 'Running Docker container and testing...'
-                    
-                    // Run the container in detached mode
-                    sh 'docker run -d -p 3000:3000 --name my-node-app-container ${dockerImage}:${dockerTag}'
-                    
-                    // Wait for a few seconds to ensure the container is up and running
-                    sleep(time: 10, unit: 'SECONDS')
-                    
-                    // Check if the application responds correctly
-                    
-
-                    // Stop and remove the container
-                    sh 'docker stop my-node-app-container'
-                    sh 'docker rm my-node-app-container'
+                    // Run tests inside the Docker container
+                    docker.image('my-app:latest').inside {
+                        sh 'npm test'  // or any other test command
+                    }
                 }
             }
         }
-
+ 
         stage('Deploy') {
             steps {
                 script {
-                    echo 'Tagging and pushing Docker image...'
-                    
+                    // Define the target image tag for the Docker registry
+                    def targetImage = 'abdurmohammed928/my-app:latest'
                     // Tag the built image with the target repository path and tag
-                    sh "docker tag ${dockerImage}:${dockerTag} ${targetImage}"
-                    
+                    sh "docker tag my-app:latest ${targetImage}"
                     // Log in to Docker Hub (Ensure you have Docker Hub credentials configured)
                     withDockerRegistry([credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/']) {
                         // Push the tagged image to the Docker registry
@@ -56,10 +38,9 @@ pipeline {
             }
         }
     }
-    
+    // Cleanup workspace after the pipeline run
     post {
         always {
-            echo 'Cleaning up workspace...'
             deleteDir()
         }
     }
