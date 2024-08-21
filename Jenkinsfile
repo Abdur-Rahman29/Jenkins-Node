@@ -5,8 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Build the Docker image with a tag 'latest'
-                    
+                    // Build the Docker image with the tag 'latest'
                     docker.build('my-app:latest')
                 }
             }
@@ -26,7 +25,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-// Define the target image tag for the Docker registry
+                    // Define the target image tag for the Docker registry
                     def targetImage = 'abdurmohammed928/my-app:latest'
                     
                     // Tag the built image with the target repository path and tag
@@ -36,7 +35,7 @@ pipeline {
                     withDockerRegistry([credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/']) {
                         // Push the tagged image to the Docker registry
                         sh "docker push ${targetImage}"
-                    
+                    }
                 }
             }
         }
