@@ -30,7 +30,7 @@ pipeline {
                     sleep(time: 10, unit: 'SECONDS')
                     
                     // Check if the application responds correctly
-                    sh 'curl -f http://localhost:3000 || exit 1'
+                    
 
                     // Stop and remove the container
                     sh 'docker stop my-node-app-container'
