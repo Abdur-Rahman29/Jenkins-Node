@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Define environment variables
         dockerImage = 'my-app'
         dockerTag = 'latest'
         targetImage = 'abdurmohammed928/my-app:latest'
@@ -22,12 +21,20 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    echo 'Running tests inside Docker container...'
-                    // Run the container and test it
-                    docker.image("${dockerImage}:${dockerTag}").inside {
-                        // Check if the application responds correctly
-                        sh 'curl -f http://localhost:3000'  // Fail if the application does not respond with 'hello-world'
-                    }
+                    echo 'Running Docker container and testing...'
+                    
+                    // Run the container in detached mode
+                    sh 'docker run -d -p 3000:3000 --name my-node-app-container ${dockerImage}:${dockerTag}'
+                    
+                    // Wait for a few seconds to ensure the container is up and running
+                    sleep(time: 10, unit: 'SECONDS')
+                    
+                    // Check if the application responds correctly
+                    sh 'curl -f http://localhost:3000 || exit 1'
+
+                    // Stop and remove the container
+                    sh 'docker stop my-node-app-container'
+                    sh 'docker rm my-node-app-container'
                 }
             }
         }
@@ -36,6 +43,7 @@ pipeline {
             steps {
                 script {
                     echo 'Tagging and pushing Docker image...'
+                    
                     // Tag the built image with the target repository path and tag
                     sh "docker tag ${dockerImage}:${dockerTag} ${targetImage}"
                     
@@ -49,7 +57,6 @@ pipeline {
         }
     }
     
-    // Cleanup workspace after the pipeline run
     post {
         always {
             echo 'Cleaning up workspace...'
