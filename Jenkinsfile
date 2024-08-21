@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     // Define the tag for the image
-                    def imageTag = 'abdurmohammed928/my-app:latest'
+                   
                     
                     // Tag the image with the registry repository and tag
                     docker.image('my-app:latest').tag(imageTag)
